@@ -19468,7 +19468,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hologlaManager: {fileID: 1749328338}
-  spawnObj: {fileID: 1966786932}
+  spawnObj: {fileID: 0}
   playMenuAnimator: {fileID: 1477418533}
 --- !u!4 &1046908727
 Transform:
