@@ -38,14 +38,14 @@ public class InputManager : MonoBehaviour
         if(GameManager.Instance.IsPlayerTurn)
         {
             //A
-            if (Input.GetKeyDown ("joystick button 0"))
+            if (Input.GetKeyDown ("joystick button 0") || Input.GetKeyDown(KeyCode.V))
             {
                 Debug.Log ("A");
                 GameManager.Instance.ConfirmPlayerChoice();
             }
 
             //B
-            if (Input.GetKeyDown ("joystick button 1"))
+            if (Input.GetKeyDown ("joystick button 1") || Input.GetKeyDown(KeyCode.C))
             {
                 Debug.Log ("B");
                 _playerChoice = RockPaperScissors.Rock;
@@ -53,7 +53,7 @@ public class InputManager : MonoBehaviour
             }
 
             //X
-            if (Input.GetKeyDown ("joystick button 2"))
+            if (Input.GetKeyDown ("joystick button 2") || Input.GetKeyDown(KeyCode.Z))
             {
                 Debug.Log ("X");
                 _playerChoice = RockPaperScissors.Paper;
@@ -61,7 +61,7 @@ public class InputManager : MonoBehaviour
             }
 
             //Y
-            if (Input.GetKeyDown ("joystick button 3"))
+            if (Input.GetKeyDown ("joystick button 3") || Input.GetKeyDown(KeyCode.X))
             {
                 Debug.Log ("Y");
                 _playerChoice = RockPaperScissors.Scissors;
@@ -72,7 +72,7 @@ public class InputManager : MonoBehaviour
         if(GameManager.Instance.IsPlayerLose)
         {
             //A
-            if (Input.GetKeyDown ("joystick button 0"))
+            if (Input.GetKeyDown ("joystick button 0") || Input.GetKeyDown(KeyCode.V))
             {
                 Debug.Log ("Player Press A, Start Next Turn");
                 GameManager.Instance.NextTurn();
@@ -82,7 +82,7 @@ public class InputManager : MonoBehaviour
         if(GameManager.Instance.IsPlayerCanMoveHand)
         {
             //A
-            if (Input.GetKeyDown ("joystick button 0"))
+            if (Input.GetKeyDown ("joystick button 0") || Input.GetKeyDown(KeyCode.V))
             {
                 Debug.Log ("Player Press A, Start Next Turn");
                 GameManager.Instance.NextTurn();
@@ -115,6 +115,24 @@ public class InputManager : MonoBehaviour
             //左搖桿
             float lsh = Input.GetAxis ("L_Stick_H");
             float lsv = Input.GetAxis ("L_Stick_V");
+            //Keyboard mapping
+            if(Input.GetKey(KeyCode.F))
+            {
+                lsh = -1;
+            }
+            else if(Input.GetKey(KeyCode.H))
+            {
+                lsh = 1;
+            }
+            if(Input.GetKey(KeyCode.T))
+            {
+                lsv = -1;
+            }
+            else if(Input.GetKey(KeyCode.G))
+            {
+                lsv = 1;
+            }
+
             if(( lsh != 0) || (lsv != 0 ))
             {
                 Debug.Log ("L stick:"+lsh+","+lsv );
@@ -124,6 +142,24 @@ public class InputManager : MonoBehaviour
             //右搖桿
             float rsh = Input.GetAxis ("R_Stick_H");
             float rsv = Input.GetAxis ("R_Stick_V");
+            //Keyboard mapping
+            if(Input.GetKey(KeyCode.J))
+            {
+                rsh = -1;
+            }
+            else if(Input.GetKey(KeyCode.L))
+            {
+                rsh = 1;
+            }
+            if(Input.GetKey(KeyCode.I))
+            {
+                rsv = -1;
+            }
+            else if(Input.GetKey(KeyCode.K))
+            {
+                rsv = 1;
+            }
+
             if(( rsh != 0 ) || (rsv != 0 ))
             {
                 Debug.Log ("R stick:"+rsh+","+rsv );
@@ -138,15 +174,28 @@ public class InputManager : MonoBehaviour
             //     Debug.Log ("D Pad:"+dph+","+dpv );
             // }
 
-            //Trigger
+            //Trigger L
             float triL = Input.GetAxis ("L_Trigger");
+            //Keyboard mapping
+            if(Input.GetKey(KeyCode.Y))
+            {
+                triL = -1;
+            }
+
             if( triL < 0 ) //左板機
             {
                 Debug.Log ("L trigger:"+triL );
                 _playerLeftHand.transform.Translate(new Vector3(0, -triL, 0) * Time.deltaTime * _handRaiseSpeed);
             }
 
+            //Trigger R
             float triR = Input.GetAxis ("R_Trigger");
+            //Keyboard mapping
+            if(Input.GetKey(KeyCode.O))
+            {
+                triR = 1;
+            }
+
             if( triR > 0 ) //右板機
             {
                 Debug.Log ("R trigger:"+triR );
@@ -154,14 +203,14 @@ public class InputManager : MonoBehaviour
             }
 
             //RB
-            if (Input.GetKey("joystick button 5"))
+            if (Input.GetKey("joystick button 5") || Input.GetKey(KeyCode.U))
             {
                 Debug.Log ("RB");
                 _playerRightHand.transform.Translate(new Vector3(0, -1, 0) * Time.deltaTime * _handRaiseSpeed);
             }
 
             //LB
-            if (Input.GetKey("joystick button 4"))
+            if (Input.GetKey("joystick button 4") || Input.GetKey(KeyCode.R))
             {
                 Debug.Log ("LB");
                 _playerLeftHand.transform.Translate(new Vector3(0, -1, 0) * Time.deltaTime * _handRaiseSpeed);
