@@ -1,0 +1,109 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+    }
+    dependencies {
+        // Must be Android Gradle Plugin 3.6.0 or later. For a list of
+        // compatible Gradle versions refer to:
+        // https://developer.android.com/studio/releases/gradle-plugin
+        classpath 'com.android.tools.build:gradle:3.6.0'
+    }
+}
+
+allprojects {
+   repositories {
+      google()
+      jcenter()
+      flatDir {
+        dirs 'libs'
+      }
+   }
+}
+
+apply plugin: 'com.android.application'
+apply from: 'setupSymbols.gradle'
+apply from: '../shared/keepUnitySymbols.gradle'
+
+dependencies {
+    implementation project(':unityLibrary')
+    }
+
+android {
+    namespace "**NAMESPACE**"
+    ndkPath "**NDKPATH**"
+    ndkVersion "**NDKVERSION**"
+    compileSdk **APIVERSION**
+    buildToolsVersion '**BUILDTOOLS**'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        minSdk **MINSDK**
+        targetSdk **TARGETSDK**
+        applicationId '**APPLICATIONID**'
+        ndk {
+            debugSymbolLevel **DEBUGSYMBOLLEVEL**
+            abiFilters **ABIFILTERS**
+        }
+        versionCode **VERSIONCODE**
+        versionName '**VERSIONNAME**'
+    }
+
+    androidResources {
+        noCompress = ['.unity3d', '.ress', '.resource', '.obb'**STREAMING_ASSETS**]
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }**SIGN**
+
+    lint {
+        abortOnError false
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled **MINIFY_DEBUG**
+            
+            proguardFiles getDefaultProguardFile('proguard-android.txt')**SIGNCONFIG**
+            jniDebuggable true
+        }
+        release {
+            minifyEnabled **MINIFY_RELEASE**
+            
+            proguardFiles getDefaultProguardFile('proguard-android.txt')**SIGNCONFIG**
+        }
+    }**PACKAGING****SPLITS**
+**BUILT_APK_LOCATION**
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = false
+        }
+        abi {
+            enableSplit = true
+        }
+    }
+}**SPLITS_VERSION_CODE****LAUNCHER_SOURCE_BUILD_SETUP**
+
+tasks.whenTaskAdded { 
+               task ->
+    if (task.name.startsWith("bundle")) { 
+              
+        def renameTaskName = "rename${task.name.capitalize()}Aab"
+        def flavor = task.name.substring("bundle".length()).uncapitalize()
+        tasks.create(renameTaskName, Copy) { 
+              
+            def path = "${buildDir}/outputs/bundle/${flavor}/"
+            from(path)
+            include "launcher-release.aab"
+            destinationDir file("${buildDir}/outputs/bundle/${flavor}/")
+            rename "launcher-release.aab", "launcher.aab"
+        }
+ 
+        task.finalizedBy(renameTaskName)
+    }
+}
