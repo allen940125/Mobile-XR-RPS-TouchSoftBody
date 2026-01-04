@@ -10,7 +10,6 @@ public class InputManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -51,6 +50,16 @@ public class InputManager : MonoBehaviour
                 Debug.Log ("Y");
                 _playerChoice = RockPaperScissors.Scissors;
                 GameManager.Instance.SetPlayerChoice(_playerChoice);
+            }
+        }
+
+        if(GameManager.Instance.IsPlayerLose)
+        {
+            //A
+            if (Input.GetKeyDown ("joystick button 0"))
+            {
+                Debug.Log ("Player Press A, Start Next Turn");
+                GameManager.Instance.NextTurn();
             }
         }
         
