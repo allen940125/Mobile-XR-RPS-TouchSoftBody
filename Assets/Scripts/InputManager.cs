@@ -4,6 +4,16 @@ public class InputManager : MonoBehaviour
 {
     public static InputManager Instance { get; private set; }
     private RockPaperScissors _playerChoice;
+    [SerializeField] private GameObject _playerLeftHand;
+    [SerializeField] private GameObject _playerRightHand;
+    [SerializeField] private GameObject _playerCam;
+    [SerializeField] private float _handMoveRangeX = 0.5f;
+    [SerializeField] private float _handMoveRangeY = 0.5f;
+    [SerializeField] private float _handMoveRangeZ = 0.5f;
+    [SerializeField] private float _handMoveSpeed = 2f;
+    [SerializeField] private float _handRaiseSpeed = 2f;
+    private Vector3 _leftHandStartPos;
+    private Vector3 _rightHandStartPos;
 
     private void Awake()
     {
@@ -17,7 +27,13 @@ public class InputManager : MonoBehaviour
         }
     }
 
-    void Update () 
+    private void Start()
+    {
+        _leftHandStartPos = _playerLeftHand.transform.localPosition;
+        _rightHandStartPos = _playerRightHand.transform.localPosition;
+    }
+
+    private void Update () 
     {
         if(GameManager.Instance.IsPlayerTurn)
         {
@@ -72,29 +88,17 @@ public class InputManager : MonoBehaviour
                 GameManager.Instance.NextTurn();
             }
 
-            //LB
-            if (Input.GetKeyDown ("joystick button 4"))
-            {
-                Debug.Log ("LB");
-            }
-            
-            //RB
-            if (Input.GetKeyDown ("joystick button 5"))
-            {
-                Debug.Log ("RB");
-            }
+            // //選擇鍵
+            // if (Input.GetKeyDown ("joystick button 6"))
+            // {
+            //     Debug.Log ("Back");
+            // }
 
-            //選擇鍵
-            if (Input.GetKeyDown ("joystick button 6"))
-            {
-                Debug.Log ("Back");
-            }
-
-            //開始鍵
-            if (Input.GetKeyDown ("joystick button 7"))
-            {
-                Debug.Log ("Start");
-            }
+            // //開始鍵
+            // if (Input.GetKeyDown ("joystick button 7"))
+            // {
+            //     Debug.Log ("Start");
+            // }
 
             // //左搖桿按下
             // if (Input.GetKeyDown ("joystick button 8"))
@@ -114,6 +118,7 @@ public class InputManager : MonoBehaviour
             if(( lsh != 0) || (lsv != 0 ))
             {
                 Debug.Log ("L stick:"+lsh+","+lsv );
+                _playerLeftHand.transform.Translate(new Vector3(lsh, 0, -lsv) * Time.deltaTime * _handMoveSpeed);
             }
 
             //右搖桿
@@ -122,26 +127,61 @@ public class InputManager : MonoBehaviour
             if(( rsh != 0 ) || (rsv != 0 ))
             {
                 Debug.Log ("R stick:"+rsh+","+rsv );
+                _playerRightHand.transform.Translate(new Vector3(rsh, 0, -rsv) * Time.deltaTime * _handMoveSpeed);
             }
 
-            //十字鍵
-            float dph = Input.GetAxis ("D_Pad_H");
-            float dpv = Input.GetAxis ("D_Pad_V");
-            if(( dph != 0 ) || ( dpv != 0 ))
-            {
-                Debug.Log ("D Pad:"+dph+","+dpv );
-            }
+            // //十字鍵
+            // float dph = Input.GetAxis ("D_Pad_H");
+            // float dpv = Input.GetAxis ("D_Pad_V");
+            // if(( dph != 0 ) || ( dpv != 0 ))
+            // {
+            //     Debug.Log ("D Pad:"+dph+","+dpv );
+            // }
 
             //Trigger
-            float tri = Input.GetAxis ("L_R_Trigger");
-            if( tri > 0 ) //右板機
+            float triL = Input.GetAxis ("L_Trigger");
+            if( triL < 0 ) //左板機
             {
-                Debug.Log ("R trigger:"+tri );
+                Debug.Log ("L trigger:"+triL );
+                _playerLeftHand.transform.Translate(new Vector3(0, -triL, 0) * Time.deltaTime * _handRaiseSpeed);
             }
-            else if( tri < 0 ) //左板機
+
+            float triR = Input.GetAxis ("R_Trigger");
+            if( triR > 0 ) //右板機
             {
-                Debug.Log ("L trigger:"+tri );
+                Debug.Log ("R trigger:"+triR );
+                _playerRightHand.transform.Translate(new Vector3(0, triR, 0) * Time.deltaTime * _handRaiseSpeed);
             }
+
+            //RB
+            if (Input.GetKey("joystick button 5"))
+            {
+                Debug.Log ("RB");
+                _playerRightHand.transform.Translate(new Vector3(0, -1, 0) * Time.deltaTime * _handRaiseSpeed);
+            }
+
+            //LB
+            if (Input.GetKey("joystick button 4"))
+            {
+                Debug.Log ("LB");
+                _playerLeftHand.transform.Translate(new Vector3(0, -1, 0) * Time.deltaTime * _handRaiseSpeed);
+            }
+
+            ClampHandPosition(_playerLeftHand.transform, true);
+            ClampHandPosition(_playerRightHand.transform, false);
         }
+    }
+
+    private void ClampHandPosition(Transform hand, bool isLeftHand)
+    {
+        Vector3 camPos = _playerCam.transform.localPosition;
+        Vector3 handPos = hand.localPosition;
+        Vector3 startPos = isLeftHand ? _leftHandStartPos : _rightHandStartPos;
+
+        handPos.x = Mathf.Clamp(handPos.x, startPos.x - _handMoveRangeX, startPos.x + _handMoveRangeX);
+        handPos.y = Mathf.Clamp(handPos.y, camPos.y - _handMoveRangeY, camPos.y + _handMoveRangeY);
+        handPos.z = Mathf.Clamp(handPos.z, camPos.z + 0.547f, camPos.z + _handMoveRangeZ); //這行比較特別是因為不能讓手移到攝影機後面
+
+        hand.localPosition = handPos;
     }
 }
