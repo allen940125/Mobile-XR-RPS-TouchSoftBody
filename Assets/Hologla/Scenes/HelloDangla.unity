@@ -200,7 +200,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 20946452}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.70964944, y: -0.1010887, z: 0.18710968, w: 0.67169094}
   m_LocalPosition: {x: -0.178, y: -0.057, z: 0.495}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -30130,12 +30130,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WinProgressMover
   targetToMove: {fileID: 1831371583}
-  progressPoints:
-  - {fileID: 20946453}
-  - {fileID: 1744757441}
-  - {fileID: 20946453}
-  - {fileID: 20946453}
-  moveDuration: 1
+  winStages:
+  - firstPoint: {fileID: 20946453}
+    firstDuration: 0.4
+    delayTime: 0.6
+    secondPoint: {fileID: 20946453}
+    secondDuration: 0.4
+  - firstPoint: {fileID: 1744757441}
+    firstDuration: 0.4
+    delayTime: 0.6
+    secondPoint: {fileID: 1744757441}
+    secondDuration: 0.4
+  - firstPoint: {fileID: 20946453}
+    firstDuration: 0.4
+    delayTime: 0.6
+    secondPoint: {fileID: 20946453}
+    secondDuration: 0.4
+  - firstPoint: {fileID: 20946453}
+    firstDuration: 0.4
+    delayTime: 0.6
+    secondPoint: {fileID: 20946453}
+    secondDuration: 0.4
   winGameObj: {fileID: 1025429059}
 --- !u!1 &987048445
 GameObject:
@@ -30184,12 +30199,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WinProgressMover
   targetToMove: {fileID: 1527791724}
-  progressPoints:
-  - {fileID: 1814049340}
-  - {fileID: 1129343868}
-  - {fileID: 1814049340}
-  - {fileID: 1814049340}
-  moveDuration: 1
+  winStages:
+  - firstPoint: {fileID: 1814049340}
+    firstDuration: 0.4
+    delayTime: 0.6
+    secondPoint: {fileID: 1814049340}
+    secondDuration: 0.4
+  - firstPoint: {fileID: 1129343868}
+    firstDuration: 0.4
+    delayTime: 0.6
+    secondPoint: {fileID: 1129343868}
+    secondDuration: 0.4
+  - firstPoint: {fileID: 1814049340}
+    firstDuration: 0.4
+    delayTime: 0.6
+    secondPoint: {fileID: 1814049340}
+    secondDuration: 0.4
+  - firstPoint: {fileID: 1814049340}
+    firstDuration: 0.4
+    delayTime: 0.6
+    secondPoint: {fileID: 1814049340}
+    secondDuration: 0.4
   winGameObj: {fileID: 270423365}
 --- !u!4 &1020925809 stripped
 Transform:
@@ -64052,7 +64082,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1744757440}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.70964944, y: -0.1010887, z: 0.18710968, w: 0.67169094}
   m_LocalPosition: {x: -0.4308, y: -0.0961, z: 0.0002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -64471,7 +64501,7 @@ MonoBehaviour:
   damping: 50
   rotateForce: 100
   rotDamping: 10
-  maxArmLength: 0.11
+  maxArmLength: 0.16
   maxDistanceError: 0.1
 --- !u!54 &1831371585
 Rigidbody:
