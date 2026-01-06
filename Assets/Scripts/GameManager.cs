@@ -24,7 +24,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float _showWinnerTime = 1.0f;
     private RockPaperScissors _playerChoice;
     private RockPaperScissors _computerChoice;
-    private int _playerWins = 0;
+    [SerializeField] private int _playerWins = 0;
+    public int PlayerWins => _playerWins;
     public bool IsPlayerTurn { get; private set; }
     public bool IsPlayerCanMoveHand { get; private set; }
     public bool IsPlayerLose { get; private set; }

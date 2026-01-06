@@ -4,71 +4,103 @@ using UnityEngine;
 public class PhysicsIKHand : MonoBehaviour
 {
     [Header("目標設定")]
-    [Tooltip("手想要去的位置 (通常是跟著動畫的手腕 ghost target)")]
-    public Transform followTarget;
+    public Transform followTarget; 
+    public Transform armRoot;      
 
-    [Tooltip("手臂的根部骨頭 (請拉入 Upper Arm / 大臂)")]
-    public Transform armRoot; // <--- 新增這個欄位
-
-    [Header("互動設定")]
-    public string obstacleTag = "Interactable"; 
-
-    [Header("物理參數")]
+    [Header("物理參數 (移動)")]
     public float followForce = 1000f;
     public float damping = 50f;
 
-    [Header("骨骼限制")]
-    [Tooltip("手臂的最大長度 (超過這個距離會強制被拉回)")]
-    public float maxArmLength = 0.6f; // <--- 請根據你的模型調整這個數值
+    // --- 新增：旋轉相關參數 ---
+    [Header("物理參數 (旋轉)")]
+    [Tooltip("旋轉的力道 (手腕扭力)")]
+    public float rotateForce = 100f; // 建議值：50 ~ 200
+    [Tooltip("旋轉阻尼 (避免轉過頭一直抖)")]
+    public float rotDamping = 10f;   // 建議值：5 ~ 20
+    // -------------------------
+
+    [Header("防穿模 / 重置設定")]
+    public float maxArmLength = 0.6f;
+    public float maxDistanceError = 0.8f; 
 
     private Rigidbody rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.useGravity = false; 
+        rb.useGravity = false;
+        
+        // 設定移動阻尼
         rb.linearDamping = 5f; 
-        rb.angularDamping = 5f;
-
-        // 如果忘記填 Arm Root，自動嘗試抓取父物件 (假設結構正確)
-        if (armRoot == null)
-        {
-            Debug.LogWarning("請在 Inspector 指定 Arm Root (大臂)，目前暫時失效。");
-        }
+        
+        // --- 修改：設定旋轉阻尼 ---
+        // 提高 Angular Damping 可以讓旋轉更穩定，不會瘋狂抖動
+        rb.angularDamping = rotDamping; 
     }
 
     void FixedUpdate()
     {
         if (followTarget == null) return;
 
-        // 1. 基礎物理跟隨 (讓手飛向目標)
+        // 1. === 嚴重誤差重置 ===
+        float distToTarget = Vector3.Distance(transform.position, followTarget.position);
+        if (distToTarget > maxDistanceError)
+        {
+            if (armRoot != null) rb.position = armRoot.position;
+            else rb.position = followTarget.position;
+
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+            return; 
+        }
+
+        // 2. === 基礎物理跟隨 (移動) ===
         Vector3 positionDifference = followTarget.position - transform.position;
         rb.AddForce(positionDifference * followForce * Time.fixedDeltaTime);
         rb.linearVelocity *= (1f - damping * Time.fixedDeltaTime);
 
-        // 2. === 骨骼長度限制 (防脫臼核心) ===
+        // 3. === 【新增】物理旋轉跟隨 (扭力) ===
+        ApplyRotationForce();
+
+        // 4. === 骨骼長度限制 ===
         if (armRoot != null)
         {
-            // 計算「現在的手(IK)」離「大臂(Root)」有多遠
             float currentDistToRoot = Vector3.Distance(transform.position, armRoot.position);
-
-            // 如果超過手臂總長度
             if (currentDistToRoot > maxArmLength)
             {
-                // 算出方向：從大臂指向手
                 Vector3 dirFromRoot = (transform.position - armRoot.position).normalized;
-                
-                // 強制把手的位置拉回到最大半徑的邊緣
-                // 公式：大臂位置 + (方向 * 最大長度)
                 rb.position = armRoot.position + dirFromRoot * maxArmLength;
                 
-                // 把向外的速度歸零，避免它一直想衝出去
                 Vector3 velocityProjected = Vector3.Project(rb.linearVelocity, dirFromRoot);
                 if (Vector3.Dot(velocityProjected, dirFromRoot) > 0)
                 {
                     rb.linearVelocity -= velocityProjected;
                 }
             }
+        }
+    }
+
+    // 計算並施加旋轉力
+    void ApplyRotationForce()
+    {
+        // 算出「目前角度」跟「目標角度」差了多少 (Quaternion math)
+        Quaternion rotationDifference = followTarget.rotation * Quaternion.Inverse(transform.rotation);
+        
+        rotationDifference.ToAngleAxis(out float angleInDegrees, out Vector3 rotationAxis);
+
+        // 修正角度範圍，讓它永遠走最近的路徑 (例如 -10度 而不是 +350度)
+        if (angleInDegrees > 180f) angleInDegrees -= 360f;
+
+        // 如果角度很小就忽略 (避免微小抖動)
+        if (Mathf.Abs(angleInDegrees) > 1f) 
+        {
+            // 將角度轉為弧度並施加扭力 (AddTorque)
+            // 這裡的公式是： 軸向 * (角度差 * 力道) - (目前的旋轉速度 * 阻尼)
+            // 類似 PD 控制器 (Proportional-Derivative Controller)
+            
+            // 簡化版寫法 (依賴 Rigidbody 的 angularDamping)
+            Vector3 torqueToApply = rotationAxis * (angleInDegrees * rotateForce * Time.fixedDeltaTime);
+            rb.AddTorque(torqueToApply);
         }
     }
 }
