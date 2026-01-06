@@ -12,6 +12,7 @@ public class InputManager : MonoBehaviour
     [SerializeField] private float _handMoveRangeZ = 0.5f;
     [SerializeField] private float _handMoveSpeed = 2f;
     [SerializeField] private float _handRaiseSpeed = 2f;
+    [SerializeField] private float _stickDeadZone = 0.1f;
     private Vector3 _leftHandStartPos;
     private Vector3 _rightHandStartPos;
 
@@ -88,19 +89,24 @@ public class InputManager : MonoBehaviour
                 GameManager.Instance.NextTurn();
             }
 
-            // //選擇鍵
-            // if (Input.GetKeyDown ("joystick button 6"))
-            // {
-            //     Debug.Log ("Back");
-            // }
+            float triggerR = Input.GetAxis ("R_T");
+            float triggerL = Input.GetAxis ("L_T");
 
-            // //開始鍵
-            // if (Input.GetKeyDown ("joystick button 7"))
-            // {
-            //     Debug.Log ("Start");
-            // }
+            if( triggerL > _stickDeadZone ) //右板機
+            {
+                Debug.Log ("Back");
+                _playerLeftHand.transform.Translate(new Vector3(0, triggerL, 0) * Time.deltaTime * _handRaiseSpeed);
+            }
+
+            //開始鍵
+            if ( triggerR > _stickDeadZone ) //左板機
+            {
+                Debug.Log ("Start");
+                _playerRightHand.transform.Translate(new Vector3(0, triggerR, 0) * Time.deltaTime * _handRaiseSpeed);
+            }
 
             // //左搖桿按下
+
             // if (Input.GetKeyDown ("joystick button 8"))
             // {
             //     Debug.Log ("LS");
@@ -133,7 +139,7 @@ public class InputManager : MonoBehaviour
                 lsv = 1;
             }
 
-            if(( lsh != 0) || (lsv != 0 ))
+            if((( lsh != 0) || (lsv != 0 )) && (Mathf.Abs(lsh) > _stickDeadZone || Mathf.Abs(lsv) > _stickDeadZone))
             {
                 Debug.Log ("L stick:"+lsh+","+lsv );
                 _playerLeftHand.transform.Translate(new Vector3(lsh, 0, -lsv) * Time.deltaTime * _handMoveSpeed);
@@ -141,7 +147,7 @@ public class InputManager : MonoBehaviour
 
             //右搖桿
             float rsh = Input.GetAxis ("R_Stick_H");
-            float rsv = Input.GetAxis ("R_Stick_V");
+            // float rsv = Input.GetAxis ("R_Stick_V");
             //Keyboard mapping
             if(Input.GetKey(KeyCode.J))
             {
@@ -151,19 +157,25 @@ public class InputManager : MonoBehaviour
             {
                 rsh = 1;
             }
-            if(Input.GetKey(KeyCode.I))
-            {
-                rsv = -1;
-            }
-            else if(Input.GetKey(KeyCode.K))
-            {
-                rsv = 1;
-            }
+            // if(Input.GetKey(KeyCode.I))
+            // {
+            //     rsv = -1;
+            // }
+            // else if(Input.GetKey(KeyCode.K))
+            // {
+            //     rsv = 1;
+            // }
 
-            if(( rsh != 0 ) || (rsv != 0 ))
+            // if(( rsh != 0 ) || (rsv != 0 ))
+            // {
+            //     Debug.Log ("R stick:"+rsh+","+rsv );
+            //     _playerRightHand.transform.Translate(new Vector3(rsh, 0, -rsv) * Time.deltaTime * _handMoveSpeed);
+            // }
+
+            if( rsh != 0 && (Mathf.Abs(rsh) > _stickDeadZone))
             {
-                Debug.Log ("R stick:"+rsh+","+rsv );
-                _playerRightHand.transform.Translate(new Vector3(rsh, 0, -rsv) * Time.deltaTime * _handMoveSpeed);
+                Debug.Log ("R stick:"+rsh);
+                _playerRightHand.transform.Translate(new Vector3(0, 0, -rsh) * Time.deltaTime * _handMoveSpeed);
             }
 
             // //十字鍵
@@ -182,10 +194,11 @@ public class InputManager : MonoBehaviour
                 triL = -1;
             }
 
-            if( triL < 0 ) //左板機
+            if( triL < -_stickDeadZone ) //左板機
             {
                 Debug.Log ("L trigger:"+triL );
-                _playerLeftHand.transform.Translate(new Vector3(0, -triL, 0) * Time.deltaTime * _handRaiseSpeed);
+                // _playerLeftHand.transform.Translate(new Vector3(0, -triL, 0) * Time.deltaTime * _handRaiseSpeed);
+                _playerRightHand.transform.Translate(new Vector3(triL, 0, 0) * Time.deltaTime * _handMoveSpeed);
             }
 
             //Trigger R
@@ -196,11 +209,26 @@ public class InputManager : MonoBehaviour
                 triR = 1;
             }
 
-            if( triR > 0 ) //右板機
+            if( triR > _stickDeadZone ) //右板機
             {
                 Debug.Log ("R trigger:"+triR );
-                _playerRightHand.transform.Translate(new Vector3(0, triR, 0) * Time.deltaTime * _handRaiseSpeed);
+                // _playerRightHand.transform.Translate(new Vector3(0, triR, 0) * Time.deltaTime * _handRaiseSpeed);
+                _playerRightHand.transform.Translate(new Vector3(triR, 0, 0) * Time.deltaTime * _handMoveSpeed);
             }
+
+            // //Trigger LR
+            // float triLR = Input.GetAxis ("L_R_Trigger");
+            // if( triL < 0 ) //左板機
+            // {
+            //     Debug.Log ("L trigger:"+triLR );
+            //     _playerLeftHand.transform.Translate(new Vector3(0, -triLR, 0) * Time.deltaTime * _handRaiseSpeed);
+            // }
+            // if( triR > 0 ) //右板機
+            // {
+            //     Debug.Log ("R trigger:"+triLR );
+            //     _playerRightHand.transform.Translate(new Vector3(0, triLR, 0) * Time.deltaTime * _handRaiseSpeed);
+            // }
+
 
             //RB
             if (Input.GetKey("joystick button 5") || Input.GetKey(KeyCode.U))
